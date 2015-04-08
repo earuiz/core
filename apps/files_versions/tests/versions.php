@@ -435,10 +435,15 @@ class Test_Files_Versioning extends \Test\TestCase {
 		$this->rootView->file_put_contents($v2, 'version2');
 
 		$this->assertEquals('test file', $this->rootView->file_get_contents(self::TEST_VERSIONS_USER . '/files/test.txt'));
+		$info1 = $this->rootView->getFileInfo(self::TEST_VERSIONS_USER . '/files/test.txt');
 
 		\OCA\Files_Versions\Storage::rollback('test.txt', $t2);
 
 		$this->assertEquals('version2', $this->rootView->file_get_contents(self::TEST_VERSIONS_USER . '/files/test.txt'));
+		$info2 = $this->rootView->getFileInfo(self::TEST_VERSIONS_USER . '/files/test.txt');
+
+		$this->assertNotEquals($info2['etag'], $info1['etag'], 'Etag must change after rolling back version');
+		$this->assertEquals($info2['fileid'], $info1['fileid'], 'File id must not change after rolling back version');
 	}
 
 	/**
