@@ -287,12 +287,11 @@ class Storage {
 			}
 
 			// rollback
-			if( @$users_view->rename('files_versions'.$filename.'.v'.$revision, 'files'.$filename) ) {
+			if (self::copyFileContents($users_view, 'files_versions' . $filename . '.v' . $revision, 'files' . $filename)) {
 				$files_view->touch($file, $revision);
 				Storage::scheduleExpire($file);
 				return true;
-
-			}else if ( $versionCreated ) {
+			} else if ($versionCreated) {
 				self::deleteVersion($users_view, $version);
 			}
 		}
@@ -300,6 +299,26 @@ class Storage {
 
 	}
 
+	/**
+	 * Stream copy file contents from $path1 to $path2
+	 *
+	 * @param \OC\Files\View $view view to use for copying
+	 * @param string $path1 source file to copy
+	 * @param string $path2 target file
+	 *
+	 * @return bool true for success, false otherwise
+	 */
+	private static function copyFileContents($view, $path1, $path2) {
+		$source = $view->fopen($path1, 'r');
+		$target = $view->fopen($path2, 'w');
+		// FIXME: might need to use part file to avoid concurrent writes
+		// (this would be an issue anyway when renaming/restoring cross-storage)
+		list(, $result) = \OC_Helper::streamCopy($source, $target);
+		fclose($source);
+		fclose($target);
+
+		return ($result !== false);
+	}
 
 	/**
 	 * get a list of all available versions of a file in descending chronological order
