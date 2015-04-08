@@ -418,6 +418,29 @@ class Test_Files_Versioning extends \Test\TestCase {
 		$this->rootView->deleteAll(self::USERS_VERSIONS_ROOT . '/subfolder');
 	}
 
+	public function testRestore() {
+
+		\OC\Files\Filesystem::file_put_contents('test.txt', 'test file');
+
+		$t1 = time();
+		// second version is two weeks older, this way we make sure that no
+		// version will be expired
+		$t2 = $t1 - 60 * 60 * 24 * 14;
+
+		// create some versions
+		$v1 = self::USERS_VERSIONS_ROOT . '/test.txt.v' . $t1;
+		$v2 = self::USERS_VERSIONS_ROOT . '/test.txt.v' . $t2;
+
+		$this->rootView->file_put_contents($v1, 'version1');
+		$this->rootView->file_put_contents($v2, 'version2');
+
+		$this->assertEquals('test file', $this->rootView->file_get_contents(self::TEST_VERSIONS_USER . '/files/test.txt'));
+
+		\OCA\Files_Versions\Storage::rollback('test.txt', $t2);
+
+		$this->assertEquals('version2', $this->rootView->file_get_contents(self::TEST_VERSIONS_USER . '/files/test.txt'));
+	}
+
 	/**
 	 * @param string $user
 	 * @param bool $create

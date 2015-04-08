@@ -262,11 +262,16 @@ class Storage {
 	}
 
 	/**
-	 * rollback to an old version of a file.
+	 * Rollback to an old version of a file.
+	 *
+	 * @param string $file file name
+	 * @param int $revision revision timestamp
 	 */
 	public static function rollback($file, $revision) {
 
 		if(\OCP\Config::getSystemValue('files_versions', Storage::DEFAULTENABLED)=='true') {
+			// add expected leading slash
+			$file = '/' . ltrim($file, '/');
 			list($uid, $filename) = self::getUidAndFilename($file);
 			$users_view = new \OC\Files\View('/'.$uid);
 			$files_view = new \OC\Files\View('/'.\OCP\User::getUser().'/files');
