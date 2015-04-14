@@ -38,19 +38,19 @@ interface IManager {
 	function isEnabled();
 
 	/**
-	 * Registers an encryption module
+	 * Registers an callback function which must return an encryption module instance
 	 *
-	 * @param IEncryptionModule $module
+	 * @param callable $callback
 	 * @throws ModuleAlreadyExistsException
 	 */
-	function registerEncryptionModule(IEncryptionModule $module);
+	function registerEncryptionModule(callable $callback);
 
 	/**
 	 * Unregisters an encryption module
 	 *
-	 * @param IEncryptionModule $module
+	 * @param string $moduleId
 	 */
-	function unregisterEncryptionModule(IEncryptionModule $module);
+	function unregisterEncryptionModule($moduleId);
 
 	/**
 	 * get a list of all encryption modules

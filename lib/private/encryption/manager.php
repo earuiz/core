@@ -59,14 +59,15 @@ class Manager implements \OCP\Encryption\IManager {
 	}
 
 	/**
-	 * Registers an encryption module
+	 * Registers an callback function which must return an encryption module instance
 	 *
-	 * @param IEncryptionModule $module
+	 * @param callable $callback
 	 * @throws Exceptions\ModuleAlreadyExistsException
 	 */
-	public function registerEncryptionModule(IEncryptionModule $module) {
-		$id = $module->getId();
-		$name = $module->getDisplayName();
+	public function registerEncryptionModule(callable $callback) {
+		$instance = call_user_func($callback);
+		$id = $instance->getId();
+		$name = $instance->getDisplayName();
 
 		if (isset($this->encryptionModules[$id])) {
 			throw new Exceptions\ModuleAlreadyExistsException($id, $name);
@@ -78,16 +79,16 @@ class Manager implements \OCP\Encryption\IManager {
 			$this->setDefaultEncryptionModule($id);
 		}
 
-		$this->encryptionModules[$id] = $module;
+		$this->encryptionModules[$id] = $callback;
 	}
 
 	/**
 	 * Unregisters an encryption module
 	 *
-	 * @param IEncryptionModule $module
+	 * @param string $moduleId
 	 */
-	public function unregisterEncryptionModule(IEncryptionModule $module) {
-		unset($this->encryptionModules[$module->getId()]);
+	public function unregisterEncryptionModule($moduleId) {
+		unset($this->encryptionModules[$moduleId]);
 	}
 
 	/**
@@ -109,7 +110,7 @@ class Manager implements \OCP\Encryption\IManager {
 	public function getEncryptionModule($moduleId = '') {
 		if (!empty($moduleId)) {
 			if (isset($this->encryptionModules[$moduleId])) {
-				return $this->encryptionModules[$moduleId];
+				return call_user_func($this->encryptionModules[$moduleId]);
 			} else {
 				$message = "Module with id: $moduleId does not exists.";
 				throw new Exceptions\ModuleDoesNotExistsException($message);
@@ -119,7 +120,7 @@ class Manager implements \OCP\Encryption\IManager {
 	             // to enable multiple modules and define a default module
 			$module = reset($this->encryptionModules);
 			if ($module) {
-				return $module;
+				return call_user_func($module);
 			} else {
 				$message = 'No encryption module registered';
 				throw new Exceptions\ModuleDoesNotExistsException($message);
@@ -137,7 +138,7 @@ class Manager implements \OCP\Encryption\IManager {
 		$defaultModuleId = $this->getDefaultEncryptionModuleId();
 		if (!empty($defaultModuleId)) {
 			if (isset($this->encryptionModules[$defaultModuleId])) {
-				return $this->encryptionModules[$defaultModuleId];
+				return call_user_func($this->encryptionModules[$defaultModuleId]);
 			} else {
 				$message = 'Default encryption module not loaded';
 				throw new Exceptions\ModuleDoesNotExistsException($message);

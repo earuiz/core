@@ -27,7 +27,7 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function() use ($em) {return $em;});
 		$this->assertFalse($m->isEnabled());
 	}
 
@@ -50,9 +50,9 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function () use ($em) { return $em;});
 		$this->assertSame(1, count($m->getEncryptionModules()));
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function () use ($em) { return $em;});
 	}
 
 	public function testModuleUnRegistration() {
@@ -62,11 +62,11 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function () use ($em) { return $em;});
 		$this->assertSame(1,
 			count($m->getEncryptionModules())
 		);
-		$m->unregisterEncryptionModule($em);
+		$m->unregisterEncryptionModule(0);
 		$this->assertEmpty($m->getEncryptionModules());
 	}
 
@@ -81,7 +81,7 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function () use ($em) { return $em;});
 		$this->assertSame(1, count($m->getEncryptionModules()));
 		$m->getEncryptionModule('unknown');
 	}
@@ -93,7 +93,7 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function () use ($em) { return $em;});
 		$this->assertSame(1, count($m->getEncryptionModules()));
 		$en0 = $m->getEncryptionModule(0);
 		$this->assertEquals(0, $en0->getId());
@@ -106,7 +106,7 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
-		$m->registerEncryptionModule($em);
+		$m->registerEncryptionModule(function () use ($em) { return $em;});
 		$this->assertSame(1, count($m->getEncryptionModules()));
 		$en0 = $m->getEncryptionModule(0);
 		$this->assertEquals(0, $en0->getId());
