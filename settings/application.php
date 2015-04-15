@@ -24,6 +24,7 @@
 namespace OC\Settings;
 
 use OC\Settings\Controller\AppSettingsController;
+use OC\Settings\Controller\CertificateController;
 use OC\Settings\Controller\CheckSetupController;
 use OC\Settings\Controller\GroupsController;
 use OC\Settings\Controller\LogSettingsController;
@@ -82,6 +83,14 @@ class Application extends App {
 				$c->query('AppName'),
 				$c->query('Request'),
 				$c->query('Config')
+			);
+		});
+		$container->registerService('CertificateController', function(IContainer $c) {
+			return new CertificateController(
+				$c->query('AppName'),
+				$c->query('Request'),
+				$c->query('CertificateManager'),
+				$c->query('L10N')
 			);
 		});
 		$container->registerService('GroupsController', function(IContainer $c) {
@@ -206,6 +215,9 @@ class Application extends App {
 		});
 		$container->registerService('Util', function(IContainer $c) {
 			return new \OC_Util();
+		});
+		$container->registerService('CertificateManager', function(IContainer $c){
+			return $c->query('ServerContainer')->getCertificateManager();
 		});
 	}
 }
